@@ -8,10 +8,16 @@ from django.views.generic.edit import CreateView
 from .models import ImageModel
 from .forms import ImageUploadForm
 
+import urllib.request
 
 # 스토리지 이미지 이름을 이용해서 접근 후 결과값 반환 코드 작성필요
-
-
+# 1. 이미지 url을 모델에 넣어 돌려보기
+# 2. 결과 값(json)을 앱에서 출력하기
+# 3. 실제 앱에서 생성된 이미지 url을 모델에 넣기(실시간)
+# 4. (2), (3) 합쳐서 돌려보기
+# 5. 색상 추출하기
+# 6. 색상 결과 값 json으로 앱에서 출력하기
+# 7. (4), (6) 합쳐서 돌려보기
 
 
 class UploadImage(CreateView):
@@ -21,8 +27,17 @@ class UploadImage(CreateView):
 
     def post(self, request, *args, **kwargs):
         form = ImageUploadForm(request.POST, request.FILES)
-        if form.is_valid(): # is_valid() 메서드 데이터의 유효성 검사하는 역활
-            img = request.FILES.get('image')
+        if form.is_valid(): # is_valid() 메서드 데이터의 유효성 검사하는 역할
+            url = "https://closetimg103341-dev.s3.us-west-2.amazonaws.com/test2.png"
+            path = "C:/Users/park/PycharmProjects/django_yolo_web/media/images/" + "test3.png"
+            urllib.request.urlretrieve(url, path)
+            #urllib.request.urlretrieve("https://closetimg103341-dev.s3.us-west-2.amazonaws.com/test2.png",
+            #                           "test2.jpg")
+            img = 'C:/Users/park/PycharmProjects/django_yolo_web/media/images/test3.png'
+            #url = "https://closetimg103341-dev.s3.us-west-2.amazonaws.com/test2.png"
+            #img = urllib.request.urlopen(url)
+            # img = render(request, 'https:\\closetimg103341-dev.s3.us-west-2.amazonaws.com\\test2.png')
+            # img = request.get('https://closetimg103341-dev.s3.us-west-2.amazonaws.com/test2.png')
             img_instance = ImageModel(
                 image=img
             )
@@ -32,8 +47,8 @@ class UploadImage(CreateView):
             img_bytes = uploaded_img_qs.image.read()
             img = im.open(io.BytesIO(img_bytes))
 
-            path_hubconfig = "c:/Users/crid2/django_yolo_web/yolov5_code" # yolov5 폴더 루트
-            path_weightfile = "c:/Users/crid2/django_yolo_web/yolov5_code/train_file/yolov5s.pt" # yolov5 가중치로 학습한 pt파일위치
+            path_hubconfig = "C:/Users/park/PycharmProjects/django_yolo_web/yolov5_code" # yolov5 폴더 루트
+            path_weightfile = "C:/Users/park/PycharmProjects/django_yolo_web/yolov5_code/train_file/best.pt" # yolov5 가중치로 학습한 pt파일위치
             model = torch.hub.load(path_hubconfig, 'custom',
                                    path=path_weightfile, source='local'  )
 
