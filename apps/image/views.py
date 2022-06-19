@@ -10,8 +10,17 @@ from .forms import ImageUploadForm
 
 import urllib.request
 
+# color avg 추출 lib
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
+from scipy.stats import mode
+
+
 # 스토리지 이미지 이름을 이용해서 접근 후 결과값 반환 코드 작성필요
 # 1. 이미지 url을 모델에 넣어 돌려보기
+# 1-1. 불필요한 거 지우기(버튼 등..)
+# 1-2. 상하의 구분 없는 옷에 생기는 에러 해결
 # 2. 결과 값(json)을 앱에서 출력하기
 # 3. 실제 앱에서 생성된 이미지 url을 모델에 넣기(실시간)
 # 4. (2), (3) 합쳐서 돌려보기
@@ -31,13 +40,7 @@ class UploadImage(CreateView):
             url = "https://closetimg103341-dev.s3.us-west-2.amazonaws.com/test2.png"
             path = "C:/Users/park/PycharmProjects/django_yolo_web/media/images/" + "test3.png"
             urllib.request.urlretrieve(url, path)
-            #urllib.request.urlretrieve("https://closetimg103341-dev.s3.us-west-2.amazonaws.com/test2.png",
-            #                           "test2.jpg")
             img = 'C:/Users/park/PycharmProjects/django_yolo_web/media/images/test3.png'
-            #url = "https://closetimg103341-dev.s3.us-west-2.amazonaws.com/test2.png"
-            #img = urllib.request.urlopen(url)
-            # img = render(request, 'https:\\closetimg103341-dev.s3.us-west-2.amazonaws.com\\test2.png')
-            # img = request.get('https://closetimg103341-dev.s3.us-west-2.amazonaws.com/test2.png')
             img_instance = ImageModel(
                 image=img
             )
@@ -72,6 +75,44 @@ class UploadImage(CreateView):
             test01 = crops[0]
             test02 = crops[1]
 
+            imgNp = mpimg.imread('C:/Users/park/PycharmProjects/django_yolo_web/runs/detect/exp6/crops/short_sleeved_shirt/image0.jpg')
+            # img color avg value
+            Red = []
+            Green = []
+            Blue = []
+
+            for x in imgNp:
+                for y in x:
+                    Red.append(y[0])
+                    Green.append(y[1])
+                    Blue.append(y[2])
+
+            R_max = max(Red)
+            G_max = max(Green)
+            B_max = max(Blue)
+
+            R_avg = sum(Red) / len(Red)
+            G_avg = sum(Green) / len(Green)
+            B_avg = sum(Blue) / len(Blue)
+
+            R_mode = mode(Red)
+            G_mode = mode(Green)
+            B_mode = mode(Blue)
+
+            print("Max Value")
+            print("R : ", R_max)
+            print("G : ", G_max)
+            print("B : ", B_max)
+
+            print("Avg Value")
+            print("R : ", R_avg)
+            print("G : ", G_avg)
+            print("B : ", B_avg)
+
+            print("Mode Value")
+            print("R : ", R_mode[0][0])
+            print("G : ", G_mode[0][0])
+            print("B : ", B_mode[0][0])
 
             # 반환시 좌표로 넘파이 어레이로 반환 다시 이미지파일 변환 과정 필요
 
