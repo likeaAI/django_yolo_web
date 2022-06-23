@@ -39,6 +39,19 @@ def color_classfication(numpy_value) :
         print('color :' , np.argmax(classes[0]))
         print()
         color_result = int(np.argmax(classes[0]))
+        if color_result == 0 :
+            color_result = 'balck'
+        elif color_result == 1 :
+            color_result = 'blue'
+        elif color_result == 2 :
+            color_result = 'green'
+        elif color_result == 3 :
+            color_result = 'pattern'
+        elif color_result == 4 :
+            color_result = 'red'
+        else :
+            color_result = 'white'
+
 
 
 class UploadImage(CreateView):
@@ -69,37 +82,28 @@ class UploadImage(CreateView):
             # 라벨 지정 학률 (너무 낮은 확률이면 애매한 옷도 모두 지정해버림)
             model.conf = 0.25
 
-
+            # ai모델 추론 후 모든 데이터값 results 저장됨
             results = model(img, size=640)
 
             # 라운딩 박스 세팅수와 crops 이미지 갯수가 불일치 에러
             crops = results.crop(save=False)  # cropped detections dictionary , True 이미지 생성
             # model.max_det = 1 개일때 객체가 0이면 'None'값을 반환
             try :
-                test01 = crops[0]['label']
+                cloths_label = crops[0]['label']
 
                 # 4) 크롭된 이미지 색깔판별 함수 호출 color_classfiaction()
                 # [:,:,::-1] BGR -> RGB 값으로 전환 넘파이를 이미지 저장시 색상반전을 보정역활
                 color_classfication(crops[0]['im'][:, :, ::-1])
 
                 print('black: 0, blue: 1, green: 2, pattern: 3, red: 4, white: 5')
-                print(test01)
+                print(cloths_label)
                 print(crops[0]['im'].shape)
 
             except IndexError :
                 print('NO detect , try again ')
-                test01 = 'No detect'
+                cloths_label = 'No detect'
 
 
-
-
-
-            # 추가 옷 종류만 json 파일로 표시 가능
-            cloths_type = results.pandas().xyxy[0]['name'].to_json(orient='records')
-            print(cloths_type)
-            #test = results.pandas().xyxy[0] (라벨데이터 전체출력)
-
-            # Results 업로드 이미지와 추론라벨 넘파이 결과값을 다시 이미지로 변환
 
             results.render()
             for img in results.imgs:
@@ -109,21 +113,23 @@ class UploadImage(CreateView):
             inference_img = "/media/yolo_out/result.png"
 
             # 딕셔너리를 json으로 변환
-            import json
-            cloths_data = {'cloths_tpye' : cloths_type ,
+
+            cloths_data = {'cloths_label' : cloths_label ,
                             'color_code' : color_result}
 
+
+            # 모델의 라벨과 컬러를 담은 json 파일은 cloths_json으로 저장됨
             cloths_json = json.dumps(cloths_data)
 
 
 
 
-
+        # 템플릿을 사용하지 않는 경우 필요없음
             form = ImageUploadForm()
             context = {
                 "form": form,
                 "inference_img": inference_img,
-                'cloths_type' : cloths_type,
+                'cloths_label' : cloths_label,
                 'cloths_json' : cloths_json
 
             }
