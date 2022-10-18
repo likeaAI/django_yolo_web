@@ -1,3 +1,2 @@
-# django-yolov5 boilerplate
-A Django-yolov5-boilerplate for Django projects.
-Use this project template for quickly start a scalable django project.
+# django와 yolo를 이용하여 서버구현 
+# 옷형태와 옷색깔을 판별하는 기능 구현 
